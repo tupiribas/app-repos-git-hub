@@ -1,29 +1,28 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { Alert, Button, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
-
-import {Platform, UIManager, findNodeHandle} from 'react-native';
-
-if (Platform.OS === 'android') {
-  UIManager.sendAccessibilityEvent(
-    findNodeHandle(this),
-    UIManager.AccessibilityEventTypes.typeViewFocused,
-  );
-}
+import { Image, Button, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function App() {
   const [texto, onChangeTexto] = React.useState('')
+  const [resultado, setResultado] = React.useState('')
+
+  const buscar = async () => {
+    try {
+      const resposta = await fetch(`https://rest-api-spring-boot-github-production.up.railway.app/users/${texto}`)
+      const json = await resposta.json()
+      setResultado(json)
+    } catch (erro) {
+      console.erro(erro)
+      setResultado(`Erro ao buscar usuário ${texto}`)
+    }
+  }
 
   return (
       <View style={styles.container}>
-        accessible={true}
-        accessibilityActions={[
-          {name: 'cut', label: 'cut'}
-        ]}
         <SafeAreaView>
           <Text style={styles.textContainer}>Buscar</Text>
           <TextInput
-            style={styles.input} 
+            style={styles.input}
             onChangeText={onChangeTexto}
             value={texto}
             accessibilityLabel='Buscar'
@@ -32,9 +31,16 @@ export default function App() {
             <Button
               title="Buscar"
               accessibilityLabel='Buscar'
-              onPress={() => Alert.alert('Simple Button pressed')}
+              onPress={buscar}
             />
           </View>
+          <Image
+            style={styles.logo}
+            source={{
+              uri: `${resultado.avatar_url}`
+            }}
+          />
+          <Text>{resultado.nome}</Text>
         </SafeAreaView>
         <StatusBar style="auto" />
       </View>
@@ -46,6 +52,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 16,
     marginVertical: 50,
+  },
+  logo: {
+    width: 66,
+    height: 58,
   },
   textContainer: {
     padding: 10,
