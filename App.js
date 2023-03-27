@@ -34,13 +34,18 @@ export default function App() {
               onPress={buscar}
             />
           </View>
-          <Image
-            style={styles.logo}
-            source={{
-              uri: `${resultado.avatar_url}`
-            }}
-          />
-          <Text>{resultado.nome}</Text>
+          <View style={styles.card}>
+            <Image
+              style={styles.logo}
+              source={{
+                uri: `${resultado.avatar_url}`
+              }}
+            />
+            <View style={styles.cartTexto}>
+              <Text style={styles.titlo}>{resultado.nome}</Text>
+              <Text style={styles.descricao}>Esse é um exemplo de texto para a miha descrição</Text>
+            </View>
+          </View>
         </SafeAreaView>
         <StatusBar style="auto" />
       </View>
@@ -52,10 +57,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 16,
     marginVertical: 50,
-  },
-  logo: {
-    width: 66,
-    height: 58,
   },
   textContainer: {
     padding: 10,
@@ -71,5 +72,38 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     padding: 10,
     borderRadius: 10
+  },
+  card: {
+    display:'flex',
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 30,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  logo: {
+    width: 90,
+    height: 90,
+    borderRadius: 50
+  },
+  titlo: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginLeft: 20,
+  },
+  cartTexto: {
+    display:'flex',
+    flexDirection: 'column',
+    width: 205,
+    marginTop: 10,
+    marginLeft: 20,
   }
 });
