@@ -1,26 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Font from 'expo-font';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import { Image, TouchableOpacity, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import axios from 'axios';
+// import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import { Image, TouchableOpacity, SafeAreaView, StyleSheet, Text, TextInput, View, FlatList } from 'react-native';
 
-export default function App(props) {
+export default function App() {
   const [texto, onChangeTexto] = React.useState('')
   const [resultado, setResultado] = React.useState('')
-  
-  async function loadFontes() {
-    await Font.loadAsync({
-      'Fonte-retro': require('./assets/fonts/IBM_Plex_Mono/IBMPlexMono-Regular.ttf')
-    });
-  }
+  const [repo, setRepo] = useState([]);
 
-  React.useEffect(() => {
-    loadFontes();
-  }, []);
 
   const Separator = () => <View style={styles.separator} />;
 
-  const buscar = async () => {
+  const buscarUsuario = async () => {
     try {
       const resposta = await fetch(`https://creepy-leg-production.up.railway.app/users/${texto}`)
       const json = await resposta.json()
@@ -31,13 +24,18 @@ export default function App(props) {
     }
   }
 
-  const Filtro = () => {
-    return (
-      <View style={styles.container}>
-        <Text>Filtros</Text>
-      </View>
-    );
-  };
+  const buscarRepositorio = async () => {
+    try {
+      const resposta = await fetch(`https://creepy-leg-production.up.railway.app/users/${texto}/repos`)
+      const json = await resposta.json()
+      setRepo(json)
+    } catch (erro) {
+      console.erro(erro)
+      setRepo([])
+    }
+  }
+  
+
   return (
     <View style={styles.main}>
       <View style={styles.container}>
@@ -50,15 +48,7 @@ export default function App(props) {
             accessibilityLabel='Buscar'
           />
           <View style={styles.areaBotaoBusca}>
-            <TouchableOpacity style={styles.botaoBuscar} onPress={buscar}>
-              <Text style={styles.buttonText}>Nome do usuário</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.botaoBuscar} onPress={buscar}>
-              <Text style={styles.buttonText}>Nome do repo.</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.areaBotaoBusca}>
-            <TouchableOpacity style={styles.botaoBuscar} onPress={buscar}>
+            <TouchableOpacity style={styles.botaoBuscar} onPress={buscarUsuario} onPressIn={buscarRepositorio}>
               <Text style={styles.buttonText}>Buscar</Text>
             </TouchableOpacity>
           </View>
@@ -66,24 +56,20 @@ export default function App(props) {
             <Text style={styles.resposta}>Respostas</Text>
             <Separator></Separator>
           </View>
-          <View style={styles.card}>
-            <Image
-              style={styles.logo}
-              source={{
-                uri: `${resultado.avatar_url}`
-              }}
-            />
-            <View style={styles.cartTexto}>
-              <View style={styles.tituloLoginContainer}>
-                <Text style={styles.titlo}>{resultado.name}</Text>
-                <Text style={styles.login}>{resultado.login}</Text>
+          <FlatList
+            data={repo}
+            // keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.card}>
+                <View style={styles.cartTexto}>
+                  <View style={styles.tituloLoginContainer}>
+                    <Text style={styles.titlo}>{item.nome_projeto}</Text>
+                  </View>
+                  <Text style={styles.localizacao}>{item.linguagem}</Text>
+                </View>
               </View>
-              <View style={styles.descricaoContainer}>
-                <Text numberOfLines={3} ellipsizeMode='tail' style={styles.descricao}>{resultado.bio}</Text>
-              </View>
-              <Text style={styles.localizacao}>{resultado.localizacao}</Text>
-            </View>
-          </View>
+            )}
+          />
         </SafeAreaView>
         <StatusBar style="auto" />
       </View>
@@ -141,7 +127,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   separator: {
-    marginVertical: 8,
+    marginTop: 8,
     borderBottomColor: '#737373',
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
@@ -153,12 +139,15 @@ const styles = StyleSheet.create({
     display:'flex',
     flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 25,
-    shadowColor: '#000',
+    borderRadius: 20,
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    marginTop: 20,
+    justifyContent: 'space-evenly',
+    shadowColor: '#e8eaea',
     shadowOffset: {
-      width: 0,
-      height: 2,
+      width: 5,
+      height: 10,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -167,13 +156,14 @@ const styles = StyleSheet.create({
   logo: {
     width: 50,
     height: 50,
-    borderRadius: 50
+    borderRadius: 50,
+    padding: 30,
   },
   cartTexto: {
     display:'flex',
     flexDirection: 'column',
-    width: '62%',
-    marginLeft: 20,
+    marginLeft: 30,
+    marginTop: 10
   },
   tituloLoginContainer: {
     display:'flex',
@@ -184,11 +174,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   login: {
-    fontFamily: 'Fonte-retro',
+    // fontFamily: 'Fonte-retro',
     fontSize: 12,
     textAlign: 'left',
-    margin: 3,
-    marginLeft: 5
   },
   descricaoContainer: {
     marginTop: 3,
